@@ -8,9 +8,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.Collection;
 
-/**
- * TODO Sprint add-controllers.
- */
 @RestController
 @RequiredArgsConstructor
 @Slf4j

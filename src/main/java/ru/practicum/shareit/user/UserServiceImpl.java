@@ -10,20 +10,18 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import static ru.practicum.shareit.user.ValidateUser.validateUser;
-
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class UserServiceImpl implements UserService {
-    private final UserRepository userRepository;
-    private final UserRepositoryImpl userRepositoryImpl;
+ //   private final UserRepository userRepository;
+    private final UserRepositoryImpl userRepository;
 
     @Override
     public Collection<UserDto> findAllUsers() {
         List<UserDto> allUsers = new ArrayList<>();
         for (User user : userRepository.findAllUsers()) {
-            UserDto userDto = UserMapper.userToDto(user);
+            UserDto userDto = UserMapper.toDto(user);
             allUsers.add(userDto);
         }
         log.info("список пользователей {}", allUsers);
@@ -32,31 +30,42 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto createUser(UserDto userDto) {
-        if (userRepositoryImpl.emails.contains(userDto.getEmail())) {
+        if (userRepository.emails.contains(userDto.getEmail())) {
             log.warn("Ошибка - Email уже существует");
             throw new InvalidEmailException("Email уже существует");
         }
-        User user = UserMapper.dtoToUser(userDto);
-        User saveUser = userRepositoryImpl.createUser(user);
+        User user = UserMapper.toUser(userDto);
+        User saveUser = userRepository.createUser(user);
         log.info("создан {}", saveUser);
-        return UserMapper.userToDto(saveUser);
+        return UserMapper.toDto(saveUser);
     }
 
     @Override
     public UserDto updateUser(Long id, UserDto userDto) {
         UserDto userDtoCheck = getUserById(id);
-        if (userDtoCheck == null) {
-            log.warn("Ошибка при обновлении");
-            NotFoundException.throwException("Ошибка при обновлении", userDto.getId());
+    /*    if (userDtoCheck == null) {
+            log.warn("Такого пользователя не существует");
+            NotFoundException.throwException("Пользователя с id={} не существует", userDto.getId());
+        }*/
+        String oldEmail = getUserById(id).getEmail();
+        if (userDto.getEmail() != null) {
+            userRepository.emails.remove(oldEmail);
         }
-        User user = UserMapper.dtoToUser(userDto);
+        if (userRepository.emails.contains(userDto.getEmail())) {
+            userRepository.emails.add(oldEmail);
+            log.warn("Ошибка - Email уже существует");
+            throw new InvalidEmailException("Email уже существует");
+        }
+        //    userRepositoryImpl.emails.add(oldEmail);
+        User user = UserMapper.toUser(userDto);
         user.setId(id);
         if (user.getName() == null) user.setName(userDtoCheck.getName());
         if (user.getEmail() == null) user.setEmail(userDtoCheck.getEmail());
-        User updateUser = userRepositoryImpl.updateUser(user);
-        log.info("обновлен {}", UserMapper.userToDto(updateUser));
-    //    validateUser(user);
-        return UserMapper.userToDto(updateUser);
+
+        User updateUser = userRepository.updateUser(user);
+        log.info("обновлен {}", UserMapper.toDto(updateUser));
+        //    validateUser(user);
+        return UserMapper.toDto(updateUser);
     }
 
     @Override
@@ -70,13 +79,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDto getUserById(Long id)  {
-        User user = userRepositoryImpl.getUserById(id);
+    public UserDto getUserById(Long id) {
+        User user = userRepository.getUserById(id);
         if (user == null) {
             log.warn("Ошибка при получении пользователя с id={}", id);
             NotFoundException.throwException("Ошибка при получении пользователя", id);
         }
-        UserDto userDto = UserMapper.userToDto(user);
+        UserDto userDto = UserMapper.toDto(user);
         log.info("получен {}", userDto);
         return userDto;
     }
