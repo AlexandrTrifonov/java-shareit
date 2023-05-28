@@ -12,6 +12,7 @@ import ru.practicum.shareit.user.UserRepository;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -51,7 +52,7 @@ public class ItemServiceImpl implements ItemService {
             throw new NotFoundException("Ошибка - отсутствует пользователь");
         }
         for (Item item : itemRepository.itemsByUser(userId)) {
-            if (item.getId() == id) {
+            if (Objects.equals(item.getId(), id)) {
                 itemDto.setId(id);
                 if (itemDto.getName() == null) itemDto.setName(item.getName());
                 if (itemDto.getDescription() == null) itemDto.setDescription(item.getDescription());

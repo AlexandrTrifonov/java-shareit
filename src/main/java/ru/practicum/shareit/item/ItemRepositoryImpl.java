@@ -4,10 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.item.model.Item;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
@@ -37,7 +34,7 @@ public class ItemRepositoryImpl implements ItemRepository {
         List<Item> itemsByUser = itemsUser.get(userId);
         itemsByUser.add(item);
         for (Item itemToDelete : itemsByUser) {
-            if (itemToDelete.getId() == item.getId()) itemsByUser.remove(itemToDelete);
+            if (Objects.equals(itemToDelete.getId(), item.getId())) itemsByUser.remove(itemToDelete);
         }
         itemsUser.put(userId, itemsByUser);
         return item;
