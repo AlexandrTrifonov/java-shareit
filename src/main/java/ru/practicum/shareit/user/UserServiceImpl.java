@@ -14,7 +14,6 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 public class UserServiceImpl implements UserService {
- //   private final UserRepository userRepository;
     private final UserRepositoryImpl userRepository;
 
     @Override
@@ -43,10 +42,6 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto updateUser(Long id, UserDto userDto) {
         UserDto userDtoCheck = getUserById(id);
-    /*    if (userDtoCheck == null) {
-            log.warn("Такого пользователя не существует");
-            NotFoundException.throwException("Пользователя с id={} не существует", userDto.getId());
-        }*/
         String oldEmail = getUserById(id).getEmail();
         if (userDto.getEmail() != null) {
             userRepository.emails.remove(oldEmail);
@@ -56,7 +51,6 @@ public class UserServiceImpl implements UserService {
             log.warn("Ошибка - Email уже существует");
             throw new InvalidEmailException("Email уже существует");
         }
-        //    userRepositoryImpl.emails.add(oldEmail);
         User user = UserMapper.toUser(userDto);
         user.setId(id);
         if (user.getName() == null) user.setName(userDtoCheck.getName());
@@ -64,7 +58,6 @@ public class UserServiceImpl implements UserService {
 
         User updateUser = userRepository.updateUser(user);
         log.info("обновлен {}", UserMapper.toDto(updateUser));
-        //    validateUser(user);
         return UserMapper.toDto(updateUser);
     }
 

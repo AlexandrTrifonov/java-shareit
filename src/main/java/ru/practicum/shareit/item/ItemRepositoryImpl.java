@@ -36,7 +36,6 @@ public class ItemRepositoryImpl implements ItemRepository {
         items.put(item.getId(), item);
         List<Item> itemsByUser = itemsUser.get(userId);
         itemsByUser.add(item);
-    //    itemsByUser.removeIf(x -> x.getId() == item.getId());
         for (Item itemToDelete : itemsByUser) {
             if (itemToDelete.getId() == item.getId()) itemsByUser.remove(itemToDelete);
         }
