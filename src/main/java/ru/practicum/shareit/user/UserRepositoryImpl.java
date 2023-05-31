@@ -7,13 +7,14 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicLong;
 
 @Component
 @Slf4j
 public class UserRepositoryImpl implements UserRepository {
     private final HashMap<Long, User> users = new HashMap<>();
     protected Set<String> emails = new HashSet<>();
-    private Long idUser = 1L;
+    AtomicLong idUser = new AtomicLong(0);
 
     @Override
     public Collection<User> findAllUsers() {
@@ -49,6 +50,6 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     private Long generateUserId() {
-        return idUser++;
+        return idUser.incrementAndGet();
     }
 }
