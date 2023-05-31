@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 public class ItemRepositoryImpl implements ItemRepository {
 
     private HashMap<Long, Item> items = new HashMap<>();
-    private HashMap<Long, List<Item>> itemsUser = new HashMap<>();
+    protected HashMap<Long, List<Item>> itemsUser = new HashMap<>();
     private Long idItem = 1L;
 
     @Override
@@ -33,9 +33,6 @@ public class ItemRepositoryImpl implements ItemRepository {
         items.put(item.getId(), item);
         List<Item> itemsByUser = itemsUser.get(userId);
         itemsByUser.add(item);
-        for (Item itemToDelete : itemsByUser) {
-            if (Objects.equals(itemToDelete.getId(), item.getId())) itemsByUser.remove(itemToDelete);
-        }
         itemsUser.put(userId, itemsByUser);
         return item;
     }

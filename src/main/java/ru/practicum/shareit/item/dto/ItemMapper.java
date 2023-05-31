@@ -3,9 +3,6 @@ package ru.practicum.shareit.item.dto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.User;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 public class ItemMapper {
 
     public static ItemDto toDto(Item item) {
@@ -25,9 +22,5 @@ public class ItemMapper {
         item.setAvailable(itemDto.getAvailable());
         item.setOwner(user);
         return item;
-    }
-
-    public static List<ItemDto> itemsToDto(List<Item> items) {
-        return items.stream().map(ItemMapper::toDto).collect(Collectors.toList());
     }
 }

@@ -13,6 +13,7 @@ import ru.practicum.shareit.user.UserRepository;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -51,12 +52,15 @@ public class ItemServiceImpl implements ItemService {
             log.warn("Ошибка - отсутствует пользователь");
             throw new NotFoundException("Ошибка - отсутствует пользователь");
         }
-        for (Item item : itemRepository.itemsByUser(userId)) {
+        for (Item item : itemsByUser) { // обновление только item пользователя с userId
             if (Objects.equals(item.getId(), id)) {
                 itemDto.setId(id);
                 if (itemDto.getName() == null) itemDto.setName(item.getName());
                 if (itemDto.getDescription() == null) itemDto.setDescription(item.getDescription());
                 if (itemDto.getAvailable() == null) itemDto.setAvailable(item.getAvailable());
+
+                itemsByUser.remove(itemRepository.getItemById(id));
+
                 Item itemUpdate = ItemMapper.toItem(userCheck, itemDto);
                 Item itemReturn = itemRepository.updateItem(userId, itemUpdate);
                 log.info("создан {}", itemReturn);
@@ -68,7 +72,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public Collection<ItemDto> findAllItems(Long userId) {
-        return ItemMapper.itemsToDto((List<Item>) itemRepository.findAllItems(userId));
+        return itemRepository.findAllItems(userId).stream().map(ItemMapper::toDto).collect(Collectors.toList());
     }
 
     @Override
@@ -78,6 +82,6 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public Collection<ItemDto> search(String text) {
-        return ItemMapper.itemsToDto((List<Item>) itemRepository.search(text));
+        return itemRepository.search(text).stream().map(ItemMapper::toDto).collect(Collectors.toList());
     }
 }
