@@ -13,6 +13,7 @@ import ru.practicum.shareit.user.UserRepository;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -20,12 +21,12 @@ import java.util.stream.Collectors;
 @Slf4j
 public class ItemServiceImpl implements ItemService {
 
-    private final ItemRepositoryImpl itemRepository;
+    private final ItemRepository itemRepository;
     private final UserRepository userRepository;
 
     @Override
     public ItemDto createItem(Long userId, ItemDto itemDto) {
-        if (userId == null) {
+    /*    if (userId == null) {
             log.warn("Ошибка - отсутствует id пользователя в запросе");
             throw new NotFoundException("Ошибка - отсутствует id пользователя");
         }
@@ -37,12 +38,13 @@ public class ItemServiceImpl implements ItemService {
         Item item = ItemMapper.toItem(user, itemDto);
         item = itemRepository.createItem(userId, item);
         log.info("создан {}", item);
-        return ItemMapper.toDto(item);
+        return ItemMapper.toDto(item);*/
+        return null;
     }
 
     @Override
     public ItemDto updateItem(Long userId, Long id, ItemDto itemDto) {
-        if (userId == null) {
+    /*    if (userId == null) {
             log.warn("Ошибка - отсутствует id пользователя в запросе");
             throw new NotFoundException("Ошибка - отсутствует id пользователя");
         }
@@ -67,17 +69,20 @@ public class ItemServiceImpl implements ItemService {
                 return ItemMapper.toDto(itemReturn);
             }
         }
+        return null;*/
         return null;
     }
 
     @Override
     public Collection<ItemDto> findAllItems(Long userId) {
-        return itemRepository.findAllItems(userId).stream().map(ItemMapper::toDto).collect(Collectors.toList());
+        Optional<Item> owner = itemRepository.findById(userId);
+        return itemRepository.findByOwner(owner).stream().map(ItemMapper::toDto).collect(Collectors.toList());
     }
 
     @Override
     public ItemDto getItemById(Long id) {
-        return ItemMapper.toDto(itemRepository.getItemById(id));
+        Item item = itemRepository.findById(id).get();
+        return ItemMapper.toDto(item);
     }
 
     @Override
