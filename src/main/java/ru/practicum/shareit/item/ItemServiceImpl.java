@@ -26,63 +26,66 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemDto createItem(Long userId, ItemDto itemDto) {
-    /*    if (userId == null) {
+        if (userId == null) {
             log.warn("Ошибка - отсутствует id пользователя в запросе");
             throw new NotFoundException("Ошибка - отсутствует id пользователя");
         }
-        User user = userRepository.getUserById(userId);
-        if (user == null) {
+        Optional<User> user = userRepository.findById(userId);
+
+        if (user.isEmpty()) {
             log.warn("Ошибка - отсутствует пользователь");
             throw new NotFoundException("Ошибка - отсутствует пользователь");
         }
-        Item item = ItemMapper.toItem(user, itemDto);
-        item = itemRepository.createItem(userId, item);
+
+        Item item = ItemMapper.toItem(user.get(), itemDto);
+        item.setOwner(user.get());
+        item.setRequestId(888);
+        item = itemRepository.save(item);
         log.info("создан {}", item);
-        return ItemMapper.toDto(item);*/
-        return null;
+        return ItemMapper.toDto(item);
     }
 
     @Override
     public ItemDto updateItem(Long userId, Long id, ItemDto itemDto) {
-    /*    if (userId == null) {
+        if (userId == null) {
             log.warn("Ошибка - отсутствует id пользователя в запросе");
             throw new NotFoundException("Ошибка - отсутствует id пользователя");
         }
-        User userCheck = userRepository.getUserById(userId);
-        List<Item> itemsByUser = itemRepository.itemsByUser(userId);
-        if (userCheck == null || itemsByUser == null) {
-            log.warn("Ошибка - отсутствует пользователь");
-            throw new NotFoundException("Ошибка - отсутствует пользователь");
-        }
-        for (Item item : itemsByUser) { // обновление только item пользователя с userId
-            if (Objects.equals(item.getId(), id)) {
-                itemDto.setId(id);
-                if (itemDto.getName() == null) itemDto.setName(item.getName());
-                if (itemDto.getDescription() == null) itemDto.setDescription(item.getDescription());
-                if (itemDto.getAvailable() == null) itemDto.setAvailable(item.getAvailable());
+        Optional<Item> itemOptional = itemRepository.findById(id);
+        Item item = itemOptional.orElse(null);
+        if (item != null && item.getOwner().getId().equals(userId)) {
+            itemDto.setId(id);
+            if (itemDto.getName() == null) itemDto.setName(item.getName());
+            if (itemDto.getDescription() == null) itemDto.setDescription(item.getDescription());
+            if (itemDto.getAvailable() == null) itemDto.setAvailable(item.getAvailable());
+    //        if (itemDto.getRequestId() == null) itemDto.setRequestId(item.getRequestId()); //todo?
 
-                itemsByUser.remove(itemRepository.getItemById(id));
-
-                Item itemUpdate = ItemMapper.toItem(userCheck, itemDto);
-                Item itemReturn = itemRepository.updateItem(userId, itemUpdate);
-                log.info("создан {}", itemReturn);
-                return ItemMapper.toDto(itemReturn);
-            }
+            Optional<User> user = userRepository.findById(userId);
+            Item itemUpdate = ItemMapper.toItem(user.get(), itemDto);
+            itemUpdate.setOwner(user.get());
+            itemUpdate.setRequestId(888);
+            Item itemReturn = itemRepository.save(itemUpdate);
+            log.info("обновлен {}", itemReturn);
+            return ItemMapper.toDto(itemReturn);
+        } else {
+            throw new NotFoundException("Тема не найдена");
         }
-        return null;*/
-        return null;
     }
 
     @Override
     public Collection<ItemDto> findAllItems(Long userId) {
-        Optional<Item> owner = itemRepository.findById(userId);
+        Optional<User> owner = userRepository.findById(userId);
         return itemRepository.findByOwner(owner).stream().map(ItemMapper::toDto).collect(Collectors.toList());
     }
 
     @Override
     public ItemDto getItemById(Long id) {
-        Item item = itemRepository.findById(id).get();
-        return ItemMapper.toDto(item);
+        Optional<Item> item = itemRepository.findById(id);
+        if (item.isPresent()) {
+            return ItemMapper.toDto(item.get());
+        } else {
+            throw new NotFoundException("Тема не найдена");
+        }
     }
 
     @Override

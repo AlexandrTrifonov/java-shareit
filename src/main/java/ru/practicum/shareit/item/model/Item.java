@@ -21,6 +21,6 @@ public class Item {
     private Boolean available;
     private Integer requestId;
     @ManyToOne
-    @JoinColumn(name = "user_id", referencedColumnName = "id")
+//    @JoinColumn(name = "owner_id", referencedColumnName = "id")
     private User owner;
 }
