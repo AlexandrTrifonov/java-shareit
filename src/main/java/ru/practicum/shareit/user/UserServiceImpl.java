@@ -30,10 +30,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto createUser(UserDto userDto) {
-    /*    if (userRepository.emails.contains(userDto.getEmail())) {
-            log.warn("Ошибка - Email уже существует");
-            throw new InvalidEmailException("Email уже существует");
-        }*/
         User user = UserMapper.toUser(userDto);
         User saveUser = userRepository.save(user);
         log.info("создан {}", saveUser);
@@ -67,11 +63,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void deleteUser(Long id) {
-    /*    User userDtoCheck = userRepository.findById(id).get();
-        if (userDtoCheck == null) {
-            log.warn("Ошибка при удалении");
-            NotFoundException.throwException("Ошибка при удалении", id);
-        }*/
         userRepository.deleteById(id);
     }
 
