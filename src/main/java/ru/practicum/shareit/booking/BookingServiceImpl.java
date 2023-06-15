@@ -135,23 +135,23 @@ public class BookingServiceImpl implements BookingService {
                         .collect(Collectors.toList());
             }
             if (state.equals("FUTURE")) {
-                return listBookings.stream().
-                        filter(booking -> booking.getStart().isAfter(LocalDateTime.now())
+                return listBookings.stream()
+                        .filter(booking -> booking.getStart().isAfter(LocalDateTime.now())
                                 && booking.getEnd().isAfter(LocalDateTime.now()))
                         .map(BookingMapper::toDto)
                         .sorted(new BookingComparator())
                         .collect(Collectors.toList());
             }
             if (state.equals("WAITING")) {
-                return listBookings.stream().
-                        filter(booking -> booking.getStatus().equals("WAITING"))
+                return listBookings.stream()
+                        .filter(booking -> booking.getStatus().equals("WAITING"))
                         .map(BookingMapper::toDto)
                         .sorted(new BookingComparator())
                         .collect(Collectors.toList());
             }
             if (state.equals("REJECTED")) {
-                return listBookings.stream().
-                        filter(booking -> booking.getStatus().equals("REJECTED"))
+                return listBookings.stream()
+                        .filter(booking -> booking.getStatus().equals("REJECTED"))
                         .map(BookingMapper::toDto)
                         .sorted(new BookingComparator())
                         .collect(Collectors.toList());
@@ -196,23 +196,23 @@ public class BookingServiceImpl implements BookingService {
                         .collect(Collectors.toList());
             }
             if (state.equals("FUTURE")) {
-                return bookingList.stream().
-                        filter(booking -> booking.getStart().isAfter(LocalDateTime.now())
+                return bookingList.stream()
+                        .filter(booking -> booking.getStart().isAfter(LocalDateTime.now())
                                 && booking.getEnd().isAfter(LocalDateTime.now()))
                         .map(BookingMapper::toDto)
                         .sorted(new BookingComparator())
                         .collect(Collectors.toList());
             }
             if (state.equals("WAITING")) {
-                return bookingList.stream().
-                        filter(booking -> booking.getStatus().equals("WAITING"))
+                return bookingList.stream()
+                        .filter(booking -> booking.getStatus().equals("WAITING"))
                         .map(BookingMapper::toDto)
                         .sorted(new BookingComparator())
                         .collect(Collectors.toList());
             }
             if (state.equals("REJECTED")) {
-                return bookingList.stream().
-                        filter(booking -> booking.getStatus().equals("REJECTED"))
+                return bookingList.stream()
+                        .filter(booking -> booking.getStatus().equals("REJECTED"))
                         .map(BookingMapper::toDto)
                         .sorted(new BookingComparator())
                         .collect(Collectors.toList());
