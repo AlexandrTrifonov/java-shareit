@@ -123,7 +123,8 @@ public class BookingServiceImpl implements BookingService {
                         .filter(booking -> booking.getStart().isBefore(LocalDateTime.now()))
                         .filter(booking -> booking.getEnd().isAfter(LocalDateTime.now()))
                         .map(BookingMapper::toDto)
-                        .sorted(new BookingComparator().reversed())
+                        .sorted(new BookingComparator())
+        //                .sorted(new BookingComparator().reversed())
                         .collect(Collectors.toList());
             }
             if (state.equals("PAST")) {
