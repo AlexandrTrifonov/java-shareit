@@ -123,7 +123,7 @@ public class BookingServiceImpl implements BookingService {
                         .filter(booking -> booking.getStart().isBefore(LocalDateTime.now()))
                         .filter(booking -> booking.getEnd().isAfter(LocalDateTime.now()))
                         .map(BookingMapper::toDto)
-                        .sorted(new BookingComparator())
+        //                .sorted(new BookingComparator())
         //                .sorted(new BookingComparator().reversed())
                         .collect(Collectors.toList());
             }
@@ -132,7 +132,7 @@ public class BookingServiceImpl implements BookingService {
                         .filter(booking -> booking.getStart().isBefore(LocalDateTime.now()))
                         .filter(booking -> booking.getEnd().isBefore(LocalDateTime.now()))
                         .map(BookingMapper::toDto)
-                        .sorted(new BookingComparator())
+        //                .sorted(new BookingComparator())
                         .collect(Collectors.toList());
             }
             if (state.equals("FUTURE")) {
@@ -140,25 +140,28 @@ public class BookingServiceImpl implements BookingService {
                         .filter(booking -> booking.getStart().isAfter(LocalDateTime.now())
                                 && booking.getEnd().isAfter(LocalDateTime.now()))
                         .map(BookingMapper::toDto)
-                        .sorted(new BookingComparator())
+        //                .sorted(new BookingComparator())
                         .collect(Collectors.toList());
             }
             if (state.equals("WAITING")) {
                 return listBookings.stream()
                         .filter(booking -> booking.getStatus().equals("WAITING"))
                         .map(BookingMapper::toDto)
-                        .sorted(new BookingComparator())
+        //                .sorted(new BookingComparator())
                         .collect(Collectors.toList());
             }
             if (state.equals("REJECTED")) {
                 return listBookings.stream()
                         .filter(booking -> booking.getStatus().equals("REJECTED"))
                         .map(BookingMapper::toDto)
-                        .sorted(new BookingComparator())
+        //                .sorted(new BookingComparator())
                         .collect(Collectors.toList());
             }
             return listBookings.stream()
-                    .map(BookingMapper::toDto).sorted(new BookingComparator()).collect(Collectors.toList());
+                    .map(BookingMapper::toDto)
+        //            .sorted(new BookingComparator())
+                    .collect(Collectors.toList());
+
         } else {
             log.warn("Пользователь не найден");
             throw new NotFoundException("Пользователь не найден");
@@ -227,7 +230,6 @@ public class BookingServiceImpl implements BookingService {
     }
 
     public static class BookingComparator implements Comparator<BookingDto> {
-
         public int compare(BookingDto a, BookingDto b) {
             return b.getStart().compareTo(a.getStart());
         }
