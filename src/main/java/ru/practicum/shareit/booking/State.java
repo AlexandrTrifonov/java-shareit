@@ -6,9 +6,5 @@ public enum State {
     PAST,
     FUTURE,
     WAITING,
-    REJECTED;
-
-    public static State toState(String state) {
-        return State.valueOf(state);
-    }
+    REJECTED
 }

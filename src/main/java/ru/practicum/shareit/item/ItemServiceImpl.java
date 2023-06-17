@@ -16,6 +16,7 @@ import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserRepository;
+import ru.practicum.shareit.utils.Constants;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -67,12 +68,16 @@ public class ItemServiceImpl implements ItemService {
             if (itemDto.getDescription() == null) itemDto.setDescription(item.getDescription());
             if (itemDto.getAvailable() == null) itemDto.setAvailable(item.getAvailable());
             Optional<User> user = userRepository.findById(userId);
-            Item itemUpdate = ItemMapper.toItem(user.get(), itemDto);
-            itemUpdate.setOwner(user.get());
-            itemUpdate.setRequestId(888);
-            Item itemReturn = itemRepository.save(itemUpdate);
-            log.info("обновлен {}", itemReturn);
-            return ItemMapper.toDto(itemReturn);
+            if (user.isPresent()) {
+                Item itemUpdate = ItemMapper.toItem(user.get(), itemDto);
+                itemUpdate.setOwner(user.get());
+                itemUpdate.setRequestId(888);
+                Item itemReturn = itemRepository.save(itemUpdate);
+                log.info("обновлен {}", itemReturn);
+                return ItemMapper.toDto(itemReturn);
+            } else {
+                throw new NotFoundException("Пользователь не найден");
+            }
         } else {
             throw new NotFoundException("Вещь не найдена");
         }
@@ -85,8 +90,8 @@ public class ItemServiceImpl implements ItemService {
         List<ItemDto> itemDtoList = new ArrayList<>();
         for (Item item : itemList) {
             ItemDto itemDto = ItemMapper.toDto(item);
-            Booking next = bookingRepository.getNextBooking(item.getId(), LocalDateTime.now()).orElse(null);
-            Booking last = bookingRepository.getLastBooking(item.getId(), LocalDateTime.now()).orElse(null);
+            Booking next = bookingRepository.getNextBooking(item.getId(), LocalDateTime.now(), Constants.STATUS_APPROVED).orElse(null);
+            Booking last = bookingRepository.getLastBooking(item.getId(), LocalDateTime.now(), Constants.STATUS_APPROVED).orElse(null);
             if (next != null) {
                 itemDto.setNextBooking(BookingMapper.toDto(next));
             } else itemDto.setNextBooking(null);
@@ -104,13 +109,12 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemDto getItem(Long userId, Long id) {
-        Optional<User> owner = userRepository.findById(userId);
         Optional<Item> item = itemRepository.findById(id);
         if (item.isPresent()) {
             ItemDto itemDto = ItemMapper.toDto(item.get());
             if (item.get().getOwner().getId().equals(userId)) {
-                Booking next = bookingRepository.getNextBooking(item.get().getId(), LocalDateTime.now()).orElse(null);
-                Booking last = bookingRepository.getLastBooking(item.get().getId(), LocalDateTime.now()).orElse(null);
+                Booking next = bookingRepository.getNextBooking(item.get().getId(), LocalDateTime.now(), Constants.STATUS_APPROVED).orElse(null);
+                Booking last = bookingRepository.getLastBooking(item.get().getId(), LocalDateTime.now(), Constants.STATUS_APPROVED).orElse(null);
                 if (next != null) {
                     itemDto.setNextBooking(BookingMapper.toDto(next));
                 } else itemDto.setNextBooking(null);
@@ -150,11 +154,14 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public CommentDto createComment(Long authorId, Long itemId, CommentDto commentDto) {
         Optional<User> authorOption = userRepository.findById(authorId);
-        if (!authorOption.isPresent()) {
+        if (authorOption.isEmpty()) {
             throw new NotFoundException("Автор не найден");
         }
         User author = authorOption.get();
         Optional<Item> itemOption = itemRepository.findById(itemId);
+        if (itemOption.isEmpty()) {
+            throw new NotFoundException("Вещь не найдена");
+        }
         Item item = itemOption.get();
         String bookingStatus = bookingRepository.checkStatusBooking(authorId, itemId, LocalDateTime.now());
         if (bookingStatus != null) {

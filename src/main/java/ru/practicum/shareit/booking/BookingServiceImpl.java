@@ -15,7 +15,6 @@ import ru.practicum.shareit.user.UserRepository;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -60,7 +59,7 @@ public class BookingServiceImpl implements BookingService {
         booking.setEnd(bookingDto.getEnd());
         booking.setItem(item.get());
         booking.setBooker(booker.get());
-        booking.setStatus("WAITING");
+        booking.setStatus(String.valueOf(Status.WAITING));
         bookingRepository.save(booking);
         log.info(String.valueOf(booking));
         return BookingMapper.toDto(booking);
@@ -75,16 +74,19 @@ public class BookingServiceImpl implements BookingService {
                 log.warn("Пользователь не может подтвердить бронь");
                 throw new NotFoundException("Пользователь не найден");
             }
+        } else {
+            log.warn("Ошибка Optional");
+            throw new NotFoundException("Ошибка Optional");
         }
         Booking booking = bookingOption.get();
-        if (booking.getStatus().equals("APPROVED")) {
+        if (booking.getStatus().equals(String.valueOf(Status.APPROVED))) {
             log.warn("Бронь уже подтверждена");
             throw new BadRequest("Бронь уже подтверждена");
         }
         if (approved) {
-            booking.setStatus("APPROVED");
+            booking.setStatus(String.valueOf(Status.APPROVED));
         } else {
-            booking.setStatus("REJECTED");
+            booking.setStatus(String.valueOf(Status.REJECTED));
         }
         bookingRepository.save(booking);
         return BookingMapper.toDto(booking);
@@ -109,59 +111,13 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public List<BookingDto> findAllBookings(Long userId, String state) {
-        if (state.equals("UNSUPPORTED_STATUS")) {
-            log.warn("Неверный статус");
-            throw new UnsupportedStatus("Unknown state: UNSUPPORTED_STATUS");
-        }
         Optional<User> userOptional = userRepository.findById(userId);
         if (userOptional.isPresent()) {
             List<Booking> listBookings;
             User booker = userOptional.get();
             listBookings = bookingRepository.findByBookerOrderByStartDesc(booker);
-            if (state.equals("CURRENT")) {
-                return listBookings.stream()
-                        .filter(booking -> booking.getStart().isBefore(LocalDateTime.now()))
-                        .filter(booking -> booking.getEnd().isAfter(LocalDateTime.now()))
-                        .map(BookingMapper::toDto)
-        //                .sorted(new BookingComparator())
-        //                .sorted(new BookingComparator().reversed())
-                        .collect(Collectors.toList());
-            }
-            if (state.equals("PAST")) {
-                return listBookings.stream()
-                        .filter(booking -> booking.getStart().isBefore(LocalDateTime.now()))
-                        .filter(booking -> booking.getEnd().isBefore(LocalDateTime.now()))
-                        .map(BookingMapper::toDto)
-        //                .sorted(new BookingComparator())
-                        .collect(Collectors.toList());
-            }
-            if (state.equals("FUTURE")) {
-                return listBookings.stream()
-                        .filter(booking -> booking.getStart().isAfter(LocalDateTime.now())
-                                && booking.getEnd().isAfter(LocalDateTime.now()))
-                        .map(BookingMapper::toDto)
-        //                .sorted(new BookingComparator())
-                        .collect(Collectors.toList());
-            }
-            if (state.equals("WAITING")) {
-                return listBookings.stream()
-                        .filter(booking -> booking.getStatus().equals("WAITING"))
-                        .map(BookingMapper::toDto)
-        //                .sorted(new BookingComparator())
-                        .collect(Collectors.toList());
-            }
-            if (state.equals("REJECTED")) {
-                return listBookings.stream()
-                        .filter(booking -> booking.getStatus().equals("REJECTED"))
-                        .map(BookingMapper::toDto)
-        //                .sorted(new BookingComparator())
-                        .collect(Collectors.toList());
-            }
-            return listBookings.stream()
-                    .map(BookingMapper::toDto)
-        //            .sorted(new BookingComparator())
-                    .collect(Collectors.toList());
-
+            State bookingState = checkBookingState(state);
+            return sortedByState(listBookings, bookingState);
         } else {
             log.warn("Пользователь не найден");
             throw new NotFoundException("Пользователь не найден");
@@ -170,68 +126,20 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public List<BookingDto> findAllBookingsOwner(Long userId, String state) {
-        if (state.equals("UNSUPPORTED_STATUS")) {
-            log.warn("Неверный статус");
-            throw new UnsupportedStatus("Unknown state: UNSUPPORTED_STATUS");
-        }
         Optional<User> userOptional = userRepository.findById(userId);
         if (userOptional.isPresent()) {
             List<Item> itemsOwner = itemRepository.findByOwner(userOptional);
             List<Booking> bookingList = new ArrayList<>();
             itemsOwner.stream().forEach(item -> {
-                        List<Booking> bookingsList = bookingRepository.findByItemId(item.getId());
+                        List<Booking> bookingsList = bookingRepository.findByItemIdOrderByStartDesc(item.getId());
                         bookingList.addAll(bookingsList);
                     }
             );
-            if (state.equals("CURRENT")) {
-                return bookingList.stream()
-                        .filter(booking -> booking.getStart().isBefore(LocalDateTime.now()))
-                        .filter(booking -> booking.getEnd().isAfter(LocalDateTime.now()))
-                        .map(BookingMapper::toDto)
-                        .sorted(new BookingComparator())
-                        .collect(Collectors.toList());
-            }
-            if (state.equals("PAST")) {
-                return bookingList.stream()
-                        .filter(booking -> booking.getStart().isBefore(LocalDateTime.now()))
-                        .filter(booking -> booking.getEnd().isBefore(LocalDateTime.now()))
-                        .map(BookingMapper::toDto)
-                        .sorted(new BookingComparator())
-                        .collect(Collectors.toList());
-            }
-            if (state.equals("FUTURE")) {
-                return bookingList.stream()
-                        .filter(booking -> booking.getStart().isAfter(LocalDateTime.now())
-                                && booking.getEnd().isAfter(LocalDateTime.now()))
-                        .map(BookingMapper::toDto)
-                        .sorted(new BookingComparator())
-                        .collect(Collectors.toList());
-            }
-            if (state.equals("WAITING")) {
-                return bookingList.stream()
-                        .filter(booking -> booking.getStatus().equals("WAITING"))
-                        .map(BookingMapper::toDto)
-                        .sorted(new BookingComparator())
-                        .collect(Collectors.toList());
-            }
-            if (state.equals("REJECTED")) {
-                return bookingList.stream()
-                        .filter(booking -> booking.getStatus().equals("REJECTED"))
-                        .map(BookingMapper::toDto)
-                        .sorted(new BookingComparator())
-                        .collect(Collectors.toList());
-            }
-            return bookingList.stream()
-                    .map(BookingMapper::toDto).sorted(new BookingComparator()).collect(Collectors.toList());
+            State bookingState = checkBookingState(state);
+            return sortedByState(bookingList, bookingState);
         } else {
             log.warn("Пользователь не найден");
             throw new NotFoundException("Пользователь не найден");
-        }
-    }
-
-    public static class BookingComparator implements Comparator<BookingDto> {
-        public int compare(BookingDto a, BookingDto b) {
-            return b.getStart().compareTo(a.getStart());
         }
     }
 
@@ -240,6 +148,53 @@ public class BookingServiceImpl implements BookingService {
         ) {
             log.warn("Конец не после начала");
             throw new BadRequest("Ошибка даты");
+        }
+    }
+
+    private List<BookingDto> sortedByState(List<Booking> bookingList, State state) {
+        if (state.equals(State.CURRENT)) {
+            return bookingList.stream()
+                    .filter(booking -> booking.getStart().isBefore(LocalDateTime.now()))
+                    .filter(booking -> booking.getEnd().isAfter(LocalDateTime.now()))
+                    .map(BookingMapper::toDto)
+                    .collect(Collectors.toList());
+        }
+        if (state.equals(State.PAST)) {
+            return bookingList.stream()
+                    .filter(booking -> booking.getStart().isBefore(LocalDateTime.now()))
+                    .filter(booking -> booking.getEnd().isBefore(LocalDateTime.now()))
+                    .map(BookingMapper::toDto)
+                    .collect(Collectors.toList());
+        }
+        if (state.equals(State.FUTURE)) {
+            return bookingList.stream()
+                    .filter(booking -> booking.getStart().isAfter(LocalDateTime.now())
+                            && booking.getEnd().isAfter(LocalDateTime.now()))
+                    .map(BookingMapper::toDto)
+                    .collect(Collectors.toList());
+        }
+        if (state.equals(State.WAITING)) {
+            return bookingList.stream()
+                    .filter(booking -> booking.getStatus().equals(String.valueOf(Status.WAITING)))
+                    .map(BookingMapper::toDto)
+                    .collect(Collectors.toList());
+        }
+        if (state.equals(State.REJECTED)) {
+            return bookingList.stream()
+                    .filter(booking -> booking.getStatus().equals(String.valueOf(Status.REJECTED)))
+                    .map(BookingMapper::toDto)
+                    .collect(Collectors.toList());
+        }
+        return bookingList.stream()
+                .map(BookingMapper::toDto)
+                .collect(Collectors.toList());
+    }
+
+    private State checkBookingState(String state) {
+        try {
+            return State.valueOf(state);
+        } catch (Throwable e) {
+            throw new UnsupportedStatus("Unknown state: " + state);
         }
     }
 }

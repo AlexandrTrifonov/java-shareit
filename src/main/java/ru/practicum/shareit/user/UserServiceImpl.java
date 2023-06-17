@@ -43,7 +43,11 @@ public class UserServiceImpl implements UserService {
             if (userCheck == null || userCheck.getId().equals(id)) {
                 User user = UserMapper.toUser(userDto);
                 user.setId(id);
-                if (user.getName() == null) user.setName(userRepository.findById(id).get().getName());
+                Optional<User> userOptional = userRepository.findById(id);
+                if (userOptional.isEmpty()) {
+                    throw new NotFoundException("Пользователь не найден");
+                }
+                if (user.getName() == null) user.setName(userOptional.get().getName());
                 User updateUser = userRepository.save(user);
                 log.info("обновлен {}", updateUser);
                 return UserMapper.toDto(updateUser);
@@ -53,8 +57,12 @@ public class UserServiceImpl implements UserService {
         } else {
             User user = UserMapper.toUser(userDto);
             user.setId(id);
-            if (user.getName() == null) user.setName(userRepository.findById(id).get().getName());
-            user.setEmail(userRepository.findById(id).get().getEmail());
+            Optional<User> userOptional = userRepository.findById(id);
+            if (userOptional.isEmpty()) {
+                throw new NotFoundException("Пользователь не найден");
+            }
+            if (user.getName() == null) user.setName(userOptional.get().getName());
+            user.setEmail(userOptional.get().getEmail());
             User updateUser = userRepository.save(user);
             log.info("обновлен {}", updateUser);
             return UserMapper.toDto(updateUser);
