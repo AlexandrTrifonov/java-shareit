@@ -8,6 +8,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.BookingService;
+import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
@@ -43,6 +44,7 @@ class ItemServiceIT {
     UserDto userDto;
     UserDto owner;
     ItemDto itemDto;
+    BookingDto bookingDto;
     ItemRequestDto itemRequestDto;
 
     CommentDto commentDto;
@@ -60,6 +62,14 @@ class ItemServiceIT {
                 "testOwner@mail.ru");
         owner = userService.createUser(owner);
         LocalDateTime created = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
+        LocalDateTime start = created.minusMinutes(50);
+        LocalDateTime end = created.minusMinutes(40);
+    //    LocalDateTime createdComment = created.plusHours(1);
+        commentDto = new CommentDto(
+                1L,
+                "commentText",
+                "Alexander",
+                created);
         itemDto = new ItemDto(
                 1L,
                 "name",
@@ -69,6 +79,7 @@ class ItemServiceIT {
                 null,
                 null,
                 List.of(new CommentDto()));
+    //            List.of(commentDto));
         itemDto = itemService.createItem(owner.getId(), itemDto);
         itemRequestDto = new ItemRequestDto(
                 1L,
@@ -77,6 +88,16 @@ class ItemServiceIT {
                 created,
                 List.of(itemDto));
         itemRequestDto = itemRequestService.createItemRequest(userDto.getId(), itemRequestDto);
+        bookingDto = new BookingDto(
+                1L,
+                start,
+                end,
+                1L,
+                itemDto,
+                userDto,
+                userDto.getId(),
+                "APPROVED");
+        bookingService.createBooking(userDto.getId(), bookingDto);
     }
 
     @Test
@@ -92,11 +113,19 @@ class ItemServiceIT {
     }
 
     @Test
+    void createItem_whenUserNull_thenReturnNotFoundException() {
+        Long userId = null;
+        assertThrows(NotFoundException.class,
+                () -> itemService.createItem(userId, itemDto));
+    }
+
+    @Test
     void updateItem_whenUserAndItemDtoFound_thenReturnedUpdatedItem() {
         itemDto.setName("nameUpdate");
         itemDto.setDescription("descriptionUpdate");
 
         ItemDto actual = itemService.updateItem(owner.getId(), itemDto.getId(), itemDto);
+
         assertThat(actual.getName(), equalTo("nameUpdate"));
         assertThat(actual.getDescription(), equalTo("descriptionUpdate"));
     }
@@ -104,6 +133,13 @@ class ItemServiceIT {
     @Test
     void updateItem_whenUserNotFound_thenReturnedNotFoundException() {
         Long wrongOwnerId = 10000L;
+        assertThrows(NotFoundException.class,
+                () -> itemService.updateItem(wrongOwnerId, itemDto.getId(), itemDto));
+    }
+
+    @Test
+    void updateItem_whenUserNull_thenReturnedNotFoundException() {
+        Long wrongOwnerId = null;
         assertThrows(NotFoundException.class,
                 () -> itemService.updateItem(wrongOwnerId, itemDto.getId(), itemDto));
     }
@@ -160,5 +196,42 @@ class ItemServiceIT {
         Long wrongItemId = itemDto.getId() + 10000;
         assertThrows(NotFoundException.class,
                 () -> itemService.getItemById(wrongItemId));
+    }
+
+    @Test
+    void search_whenTextIsCorrect_thenReturnedItems() {
+        List<ItemDto> actual = (List<ItemDto>) itemService.search("name");
+
+        assertThat(actual.size(), equalTo(1));
+    }
+
+    @Test
+    void search_whenTextIsNotCorrect_thenReturnedEmptyList() {
+        List<ItemDto> actual = (List<ItemDto>) itemService.search("wrongname");
+
+        assertThat(actual.size(), equalTo(0));
+    }
+
+    @Test
+    void createComment() {
+        CommentDto actual = itemService.createComment(userDto.getId(), itemDto.getId(), commentDto);
+
+        assertThat(actual.getText(), equalTo(commentDto.getText()));
+    }
+
+    @Test
+    void createComment_whenUserNotFound_thenReturnedNotFoundException() {
+        Long wrongUserId = userDto.getId() + 10000;
+
+        assertThrows(NotFoundException.class,
+                () -> itemService.createComment(wrongUserId, itemDto.getId(), commentDto));
+    }
+
+    @Test
+    void createComment_whenItemNotFound_thenReturnedNotFoundException() {
+        Long wrongItemId = itemDto.getId() + 10000;
+
+        assertThrows(NotFoundException.class,
+                () -> itemService.createComment(userDto.getId(), wrongItemId, commentDto));
     }
 }
