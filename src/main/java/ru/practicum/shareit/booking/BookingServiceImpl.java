@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class BookingServiceImpl implements BookingService {
 
-    private final BookingRepository bookingRepository;
+    private final BookingRepository bookingRepository; //
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
 
