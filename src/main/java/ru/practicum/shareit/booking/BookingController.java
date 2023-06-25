@@ -3,16 +3,19 @@ package ru.practicum.shareit.booking;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingDto;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Min;
 import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
 @Slf4j
 @RequestMapping(path = "/bookings")
+@Validated
 public class BookingController {
     private final BookingService bookingService;
 
@@ -41,14 +44,18 @@ public class BookingController {
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public List<BookingDto> findAllBookingsUser(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                                @RequestParam(required = false, defaultValue = "ALL") String state) {
-        return bookingService.findAllBookings(userId, state);
+                                                @RequestParam(required = false, defaultValue = "ALL") String state,
+                                                @RequestParam(value = "from", defaultValue = "0") @Min(0) int from,
+                                                @RequestParam(value = "size", defaultValue = "10") @Min(1) int size) {
+        return bookingService.findAllBookings(userId, state, from, size);
     }
 
     @GetMapping("/owner")
     @ResponseStatus(HttpStatus.OK)
     public List<BookingDto> findAllBookingsOwner(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                                 @RequestParam(required = false, defaultValue = "ALL") String state) {
-        return bookingService.findAllBookingsOwner(userId, state);
+                                                 @RequestParam(required = false, defaultValue = "ALL") String state,
+                                                 @RequestParam(value = "from", defaultValue = "0") @Min(0) int from,
+                                                 @RequestParam(value = "size", defaultValue = "10") @Min(1) int size) {
+        return bookingService.findAllBookingsOwner(userId, state, from, size);
     }
 }

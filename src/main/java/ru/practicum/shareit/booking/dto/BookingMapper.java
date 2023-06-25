@@ -11,6 +11,7 @@ public class BookingMapper {
         bookingDto.setId(booking.getId());
         bookingDto.setStart(booking.getStart());
         bookingDto.setEnd(booking.getEnd());
+        bookingDto.setItemId(booking.getItem().getId()); //todo
         bookingDto.setItem(ItemMapper.toDto(booking.getItem()));
         bookingDto.setBooker(UserMapper.toDto(booking.getBooker()));
         bookingDto.setBookerId(booking.getBooker().getId());
