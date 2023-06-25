@@ -21,7 +21,7 @@ import java.util.List;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -47,7 +47,8 @@ class BookingControllerIT {
     BookingDto nextBookingDto;
     BookingDto lastBookingDto;
     final LocalDateTime currentTime = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
-    final LocalDateTime start = currentTime.plusHours(1);;
+    final LocalDateTime start = currentTime.plusHours(1);
+    ;
     final LocalDateTime end = currentTime.plusHours(2);
     final LocalDateTime startLast = currentTime.minusHours(2);
     final LocalDateTime endLast = currentTime.minusHours(1);
@@ -112,7 +113,7 @@ class BookingControllerIT {
                         .header("X-Sharer-User-Id", 1)
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
-        //                .accept(MediaType.APPLICATION_JSON))
+                        //                .accept(MediaType.APPLICATION_JSON))
                         .content(objectMapper.writeValueAsString(bookingDto)))
                 .andExpect(status().isCreated())
                 .andDo(print())
