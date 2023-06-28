@@ -12,14 +12,9 @@ import java.util.Optional;
 public interface BookingRepository extends JpaRepository<Booking, Long> {
 
     List<Booking> findByBookerOrderByStartDesc(User booker, Pageable page);
-    //   Page<Booking> findByBookerOrderByStartDesc(User booker, Pageable page);
-
-//    List<Booking> findByBookerOrderByStartDesc(User booker, Pageable page);
-
-//    List<Booking> findByBookerOrderByStart(User booker, Pageable page);
 
     @Query(nativeQuery = true, value = "select * from bookings where item_id = ?1 order by start_date desc")
-    List<Booking> findByItemIdOrderByStartDesc(Long itemId);
+    List<Booking> findByItemIdOrderByStartDesc(Long itemId, Pageable page);
 
     @Query(nativeQuery = true, value = "select * from bookings where item_id = ?1 and start_date > ?2 " +
             "and status like ?3 " +

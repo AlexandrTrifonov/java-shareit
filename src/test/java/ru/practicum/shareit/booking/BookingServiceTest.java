@@ -290,7 +290,7 @@ class BookingServiceTest {
         when(userRepository.findById(any())).thenReturn(Optional.ofNullable(user));
         when(bookingRepository.findByBookerOrderByStartDesc(any(), any())).thenReturn(List.of(booking));
 
-    //    List<BookingDto> actual = bookingService.findAllBookings(user.getId(), "Unknown state", 0, 10);
+        //    List<BookingDto> actual = bookingService.findAllBookings(user.getId(), "Unknown state", 0, 10);
 
         Assertions.assertThrows(UnsupportedStatus.class,
                 () -> bookingService.findAllBookings(user.getId(), "Unknown state", 0, 10));
@@ -363,7 +363,7 @@ class BookingServiceTest {
     void findAllBookingOwner() {
         when(userRepository.findById(any())).thenReturn(Optional.ofNullable(user));
         when(itemRepository.findByOwner(any())).thenReturn(List.of(item));
-        when(bookingRepository.findByItemIdOrderByStartDesc(any())).thenReturn(List.of(booking));
+        when(bookingRepository.findByItemIdOrderByStartDesc(any(), any())).thenReturn(List.of(booking));
 
         List<BookingDto> actual = bookingService.findAllBookingsOwner(user.getId(), "ALL", 0, 10);
 

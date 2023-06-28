@@ -2,7 +2,6 @@ package ru.practicum.shareit.booking;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.BookingDto;
@@ -26,7 +25,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class BookingServiceImpl implements BookingService {
 
-    private final BookingRepository bookingRepository; //
+    private final BookingRepository bookingRepository;
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
 
@@ -118,14 +117,9 @@ public class BookingServiceImpl implements BookingService {
             List<Booking> listBookings;
             User booker = userOptional.get();
             PageRequest page = PageRequest.of(from > 0 ? from / size : 0, size);
-            Page<Booking> listPageBooking;
             listBookings = bookingRepository.findByBookerOrderByStartDesc(booker, page);
-        //    listPageBooking = bookingRepository.findByBookerOrderByStartDesc(booker, page);
-        //    listBookings = bookingRepository.findByBookerOrderByStartDesc(booker, page).getContent();
             State bookingState = checkBookingState(state);
             return sortedByState(listBookings, bookingState);
-        //    return sortedByState(listPageBooking.getContent(), bookingState);
-        //    return sortedByState(listBookings, bookingState);
         } else {
             log.warn("Пользователь не найден");
             throw new NotFoundException("Пользователь не найден");
@@ -138,8 +132,9 @@ public class BookingServiceImpl implements BookingService {
         if (userOptional.isPresent()) {
             List<Item> itemsOwner = itemRepository.findByOwner(userOptional);
             List<Booking> bookingList = new ArrayList<>();
+            PageRequest page = PageRequest.of(from > 0 ? from / size : 0, size);
             itemsOwner.stream().forEach(item -> {
-                        List<Booking> bookingsList = bookingRepository.findByItemIdOrderByStartDesc(item.getId());
+                        List<Booking> bookingsList = bookingRepository.findByItemIdOrderByStartDesc(item.getId(), page);
                         bookingList.addAll(bookingsList);
                     }
             );
