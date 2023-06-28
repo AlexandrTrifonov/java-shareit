@@ -2,7 +2,6 @@ package ru.practicum.shareit.request;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -83,10 +82,12 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     @Override
     public ItemRequestDto getItemRequestById(Long userId, Long requestId) {
         getRequestorUser(userId);
-        if (itemRequestRepository.findById(requestId).isEmpty()) {
+        Optional<ItemRequest> itemRequestOptional = itemRequestRepository.findById(requestId);
+        if (itemRequestOptional.isEmpty()) {
             throw new NotFoundException("Не найден запрос " + requestId);
         }
-        return ItemRequestMapper.toDto(itemRequestRepository.findAllById(requestId));
+        return ItemRequestMapper.toDto(itemRequestOptional.get());
+        //    return ItemRequestMapper.toDto(itemRequestRepository.findAllById(requestId));
     }
 
     @Override
@@ -94,9 +95,13 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         getRequestorUser(userId);
         Sort sort = Sort.by("created");
         PageRequest page = PageRequest.of(from, size, sort);
-        Page<ItemRequest> listItemRequest = itemRequestRepository.findAllByUserIdIsNot(userId, page);
-        return listItemRequest.getContent().stream()
+        List<ItemRequest> listItemRequest = itemRequestRepository.findAllByUserIdIsNot(userId, page);
+        //    Page<ItemRequest> listItemRequest = itemRequestRepository.findAllByUserIdIsNot(userId, page);
+        return listItemRequest.stream()
                 .map(ItemRequestMapper::toDto)
                 .collect(Collectors.toList());
+    /*    return listItemRequest.getContent().stream()
+                .map(ItemRequestMapper::toDto)
+                .collect(Collectors.toList());*/
     }
 }

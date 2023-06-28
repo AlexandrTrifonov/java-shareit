@@ -21,7 +21,6 @@ import java.util.List;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Transactional
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
@@ -50,6 +49,14 @@ class ItemRequestServiceIT {
         itemRequestDto = new ItemRequestDto(1L, "description", userDto, created, List.of(new ItemDto()));
         userService.createUser(userDto);
         userService.createUser(user2Dto);
+        itemRequestService.createItemRequest(userDto.getId(), itemRequestDto);
+    }
+
+    @Test
+    void findItemRequestsOwner() {
+
+        assertThat(itemRequestService.findItemRequestsOwner(userDto.getId()).size(),
+                equalTo(1));
     }
 
     @Test
@@ -86,6 +93,6 @@ class ItemRequestServiceIT {
     void findAllItemRequests() {
         List<ItemRequestDto> result = itemRequestService.findAllItemRequests(user2Dto.getId(), 0, 10);
 
-        assertTrue(result.isEmpty());
+        assertThat(result.size(), equalTo(1));
     }
 }

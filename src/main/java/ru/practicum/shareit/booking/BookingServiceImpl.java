@@ -2,6 +2,7 @@ package ru.practicum.shareit.booking;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.BookingDto;
@@ -117,9 +118,14 @@ public class BookingServiceImpl implements BookingService {
             List<Booking> listBookings;
             User booker = userOptional.get();
             PageRequest page = PageRequest.of(from > 0 ? from / size : 0, size);
-            listBookings = bookingRepository.findByBookerOrderByStartDesc(booker, page).getContent();
+            Page<Booking> listPageBooking;
+            listBookings = bookingRepository.findByBookerOrderByStartDesc(booker, page);
+        //    listPageBooking = bookingRepository.findByBookerOrderByStartDesc(booker, page);
+        //    listBookings = bookingRepository.findByBookerOrderByStartDesc(booker, page).getContent();
             State bookingState = checkBookingState(state);
             return sortedByState(listBookings, bookingState);
+        //    return sortedByState(listPageBooking.getContent(), bookingState);
+        //    return sortedByState(listBookings, bookingState);
         } else {
             log.warn("Пользователь не найден");
             throw new NotFoundException("Пользователь не найден");
