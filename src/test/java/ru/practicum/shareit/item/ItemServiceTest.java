@@ -9,6 +9,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ru.practicum.shareit.booking.Booking;
 import ru.practicum.shareit.booking.BookingRepository;
+import ru.practicum.shareit.exception.BadRequest;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
@@ -205,6 +206,15 @@ class ItemServiceTest {
     }
 
     @Test
+    void getItem_whenItemNotFound_thenReturnNotFoundException() {
+        when(userRepository.findById(any())).thenReturn(Optional.ofNullable(user));
+        when(itemRepository.findById(any())).thenReturn(Optional.empty());
+
+        Assertions.assertThrows(NotFoundException.class,
+                () -> itemService.getItem(user.getId(), item.getId()));
+    }
+
+    @Test
     void getItemById() {
         when(itemRepository.findById(any())).thenReturn(Optional.ofNullable(item));
 
@@ -250,5 +260,32 @@ class ItemServiceTest {
         CommentDto actual = itemService.createComment(user.getId(), item.getId(), commentDto);
 
         Assertions.assertEquals(commentDto.getText(), actual.getText());
+    }
+
+    @Test
+    void createComment_whenAuthorNotFound_thenReturnNotFoundException() {
+        when(userRepository.findById(any())).thenReturn(Optional.empty());
+
+        Assertions.assertThrows(NotFoundException.class,
+                () -> itemService.createComment(user.getId(), item.getId(), commentDto));
+    }
+
+    @Test
+    void createComment_whenItemNotFound_thenReturnNotFoundException() {
+        when(userRepository.findById(any())).thenReturn(Optional.ofNullable(user));
+        when(itemRepository.findById(any())).thenReturn(Optional.empty());
+
+        Assertions.assertThrows(NotFoundException.class,
+                () -> itemService.createComment(user.getId(), item.getId(), commentDto));
+    }
+
+    @Test
+    void createComment_whenBookingStatusIsNotValid_thenReturnBadRequest() {
+        when(userRepository.findById(any())).thenReturn(Optional.ofNullable(user));
+        when(itemRepository.findById(any())).thenReturn(Optional.ofNullable(item));
+        when(bookingRepository.checkStatusBooking(any(), any(), any())).thenReturn(null);
+
+        Assertions.assertThrows(BadRequest.class,
+                () -> itemService.createComment(user.getId(), item.getId(), commentDto));
     }
 }

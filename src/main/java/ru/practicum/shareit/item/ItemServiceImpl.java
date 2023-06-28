@@ -94,10 +94,12 @@ public class ItemServiceImpl implements ItemService {
             Booking last = bookingRepository.getLastBooking(item.getId(), LocalDateTime.now(), Constants.STATUS_APPROVED).orElse(null);
             if (next != null) {
                 itemDto.setNextBooking(BookingMapper.toDto(next));
-            } else itemDto.setNextBooking(null);
+            }
+        //    else itemDto.setNextBooking(null);
             if (last != null) {
                 itemDto.setLastBooking(BookingMapper.toDto(last));
-            } else itemDto.setLastBooking(null);
+            }
+        //    else itemDto.setLastBooking(null);
             List<CommentDto> comments = commentRepository.getCommentsForItem(itemDto.getId()).stream()
                     .map(CommentMapper::toDto)
                     .collect(Collectors.toList());
@@ -118,10 +120,12 @@ public class ItemServiceImpl implements ItemService {
                 Booking last = bookingRepository.getLastBooking(item.get().getId(), LocalDateTime.now(), Constants.STATUS_APPROVED).orElse(null);
                 if (next != null) {
                     itemDto.setNextBooking(BookingMapper.toDto(next));
-                } else itemDto.setNextBooking(null);
+                }
+            //    else itemDto.setNextBooking(null);
                 if (last != null) {
                     itemDto.setLastBooking(BookingMapper.toDto(last));
-                } else itemDto.setLastBooking(null);
+                }
+            //    else itemDto.setLastBooking(null);
             }
             List<CommentDto> comments = commentRepository.getCommentsForItem(itemDto.getId()).stream()
                     .map(CommentMapper::toDto)
