@@ -87,7 +87,6 @@ public class ItemRequestServiceImpl implements ItemRequestService {
             throw new NotFoundException("Не найден запрос " + requestId);
         }
         return ItemRequestMapper.toDto(itemRequestOptional.get());
-        //    return ItemRequestMapper.toDto(itemRequestRepository.findAllById(requestId));
     }
 
     @Override
@@ -96,12 +95,8 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         Sort sort = Sort.by("created");
         PageRequest page = PageRequest.of(from, size, sort);
         List<ItemRequest> listItemRequest = itemRequestRepository.findAllByUserIdIsNot(userId, page);
-        //    Page<ItemRequest> listItemRequest = itemRequestRepository.findAllByUserIdIsNot(userId, page);
         return listItemRequest.stream()
                 .map(ItemRequestMapper::toDto)
                 .collect(Collectors.toList());
-    /*    return listItemRequest.getContent().stream()
-                .map(ItemRequestMapper::toDto)
-                .collect(Collectors.toList());*/
     }
 }

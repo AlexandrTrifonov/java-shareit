@@ -64,7 +64,6 @@ class ItemServiceIT {
         LocalDateTime created = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
         LocalDateTime start = created.minusMinutes(50);
         LocalDateTime end = created.minusMinutes(40);
-    //    LocalDateTime createdComment = created.plusHours(1);
         commentDto = new CommentDto(
                 1L,
                 "commentText",
@@ -79,7 +78,6 @@ class ItemServiceIT {
                 null,
                 null,
                 List.of(new CommentDto()));
-    //            List.of(commentDto));
         itemDto = itemService.createItem(owner.getId(), itemDto);
         itemRequestDto = new ItemRequestDto(
                 1L,

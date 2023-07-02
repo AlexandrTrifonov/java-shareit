@@ -48,7 +48,6 @@ public class ItemServiceImpl implements ItemService {
         }
         Item item = ItemMapper.toItem(user.get(), itemDto);
         item.setOwner(user.get());
-        //    item.setRequestId(888);
         item = itemRepository.save(item);
         log.info("создан {}", item);
         return ItemMapper.toDto(item);
@@ -95,11 +94,9 @@ public class ItemServiceImpl implements ItemService {
             if (next != null) {
                 itemDto.setNextBooking(BookingMapper.toDto(next));
             }
-        //    else itemDto.setNextBooking(null);
             if (last != null) {
                 itemDto.setLastBooking(BookingMapper.toDto(last));
             }
-        //    else itemDto.setLastBooking(null);
             List<CommentDto> comments = commentRepository.getCommentsForItem(itemDto.getId()).stream()
                     .map(CommentMapper::toDto)
                     .collect(Collectors.toList());
@@ -121,11 +118,9 @@ public class ItemServiceImpl implements ItemService {
                 if (next != null) {
                     itemDto.setNextBooking(BookingMapper.toDto(next));
                 }
-            //    else itemDto.setNextBooking(null);
                 if (last != null) {
                     itemDto.setLastBooking(BookingMapper.toDto(last));
                 }
-            //    else itemDto.setLastBooking(null);
             }
             List<CommentDto> comments = commentRepository.getCommentsForItem(itemDto.getId()).stream()
                     .map(CommentMapper::toDto)
