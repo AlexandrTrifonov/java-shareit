@@ -2,6 +2,7 @@ package ru.practicum.shareit.booking;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingMapper;
@@ -110,12 +111,13 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingDto> findAllBookings(Long userId, String state) {
+    public List<BookingDto> findAllBookings(Long userId, String state, int from, int size) {
         Optional<User> userOptional = userRepository.findById(userId);
         if (userOptional.isPresent()) {
             List<Booking> listBookings;
             User booker = userOptional.get();
-            listBookings = bookingRepository.findByBookerOrderByStartDesc(booker);
+            PageRequest page = PageRequest.of(from > 0 ? from / size : 0, size);
+            listBookings = bookingRepository.findByBookerOrderByStartDesc(booker, page);
             State bookingState = checkBookingState(state);
             return sortedByState(listBookings, bookingState);
         } else {
@@ -125,13 +127,14 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingDto> findAllBookingsOwner(Long userId, String state) {
+    public List<BookingDto> findAllBookingsOwner(Long userId, String state, int from, int size) {
         Optional<User> userOptional = userRepository.findById(userId);
         if (userOptional.isPresent()) {
             List<Item> itemsOwner = itemRepository.findByOwner(userOptional);
             List<Booking> bookingList = new ArrayList<>();
+            PageRequest page = PageRequest.of(from > 0 ? from / size : 0, size);
             itemsOwner.stream().forEach(item -> {
-                        List<Booking> bookingsList = bookingRepository.findByItemIdOrderByStartDesc(item.getId());
+                        List<Booking> bookingsList = bookingRepository.findByItemIdOrderByStartDesc(item.getId(), page);
                         bookingList.addAll(bookingsList);
                     }
             );

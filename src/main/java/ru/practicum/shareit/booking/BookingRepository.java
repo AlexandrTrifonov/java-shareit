@@ -1,5 +1,6 @@
 package ru.practicum.shareit.booking;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import ru.practicum.shareit.user.User;
@@ -10,10 +11,10 @@ import java.util.Optional;
 
 public interface BookingRepository extends JpaRepository<Booking, Long> {
 
-    List<Booking> findByBookerOrderByStartDesc(User booker);
+    List<Booking> findByBookerOrderByStartDesc(User booker, Pageable page);
 
     @Query(nativeQuery = true, value = "select * from bookings where item_id = ?1 order by start_date desc")
-    List<Booking> findByItemIdOrderByStartDesc(Long itemId);
+    List<Booking> findByItemIdOrderByStartDesc(Long itemId, Pageable page);
 
     @Query(nativeQuery = true, value = "select * from bookings where item_id = ?1 and start_date > ?2 " +
             "and status like ?3 " +

@@ -48,7 +48,6 @@ public class ItemServiceImpl implements ItemService {
         }
         Item item = ItemMapper.toItem(user.get(), itemDto);
         item.setOwner(user.get());
-        item.setRequestId(888);
         item = itemRepository.save(item);
         log.info("создан {}", item);
         return ItemMapper.toDto(item);
@@ -67,11 +66,11 @@ public class ItemServiceImpl implements ItemService {
             if (itemDto.getName() == null) itemDto.setName(item.getName());
             if (itemDto.getDescription() == null) itemDto.setDescription(item.getDescription());
             if (itemDto.getAvailable() == null) itemDto.setAvailable(item.getAvailable());
+            if (itemDto.getRequestId() != null) item.setRequestId(itemDto.getRequestId());
             Optional<User> user = userRepository.findById(userId);
             if (user.isPresent()) {
                 Item itemUpdate = ItemMapper.toItem(user.get(), itemDto);
                 itemUpdate.setOwner(user.get());
-                itemUpdate.setRequestId(888);
                 Item itemReturn = itemRepository.save(itemUpdate);
                 log.info("обновлен {}", itemReturn);
                 return ItemMapper.toDto(itemReturn);
@@ -94,10 +93,10 @@ public class ItemServiceImpl implements ItemService {
             Booking last = bookingRepository.getLastBooking(item.getId(), LocalDateTime.now(), Constants.STATUS_APPROVED).orElse(null);
             if (next != null) {
                 itemDto.setNextBooking(BookingMapper.toDto(next));
-            } else itemDto.setNextBooking(null);
+            }
             if (last != null) {
                 itemDto.setLastBooking(BookingMapper.toDto(last));
-            } else itemDto.setLastBooking(null);
+            }
             List<CommentDto> comments = commentRepository.getCommentsForItem(itemDto.getId()).stream()
                     .map(CommentMapper::toDto)
                     .collect(Collectors.toList());
@@ -109,6 +108,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemDto getItem(Long userId, Long id) {
+        User userCheck = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("Пользователь не найден")); //todo
         Optional<Item> item = itemRepository.findById(id);
         if (item.isPresent()) {
             ItemDto itemDto = ItemMapper.toDto(item.get());
@@ -117,10 +117,10 @@ public class ItemServiceImpl implements ItemService {
                 Booking last = bookingRepository.getLastBooking(item.get().getId(), LocalDateTime.now(), Constants.STATUS_APPROVED).orElse(null);
                 if (next != null) {
                     itemDto.setNextBooking(BookingMapper.toDto(next));
-                } else itemDto.setNextBooking(null);
+                }
                 if (last != null) {
                     itemDto.setLastBooking(BookingMapper.toDto(last));
-                } else itemDto.setLastBooking(null);
+                }
             }
             List<CommentDto> comments = commentRepository.getCommentsForItem(itemDto.getId()).stream()
                     .map(CommentMapper::toDto)
