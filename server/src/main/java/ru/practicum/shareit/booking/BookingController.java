@@ -29,6 +29,8 @@ public class BookingController {
     public BookingDto approveBooking(@RequestHeader("X-Sharer-User-Id") Long userId,
                                      @PathVariable(value = "bookingId") Long id,
                                      @RequestParam("approved") Boolean approved) {
+        System.out.println("333333333333");
+        System.out.println(userId);
         return bookingService.approveBooking(userId, id, approved);
     }
 

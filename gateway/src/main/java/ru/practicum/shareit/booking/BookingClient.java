@@ -27,14 +27,36 @@ public class BookingClient extends BaseClient {
     }
 
     public ResponseEntity<Object> approveBooking(Long userId, Long bookingId, Boolean approved) {
-        return patch("/" + bookingId + "?approved=" + approved, userId);
+        System.out.println("222222222222222222");
+        System.out.println(userId);
+        return patch("/" + bookingId + "?approved=" + approved, userId.longValue());
     }
 
     public ResponseEntity<Object> getBookingById(Long userId, Long bookingId) {
-        return get("/" + bookingId, userId);
+        return get("/" + bookingId, userId.longValue());
     }
 
     public ResponseEntity<Object> findAllBookingsUser(Long userId, String status, int from, int size) {
+        Map<String, Object> parameter = new HashMap<>();
+        parameter.put("from", from);
+        parameter.put("size", size);
+        parameter.put("state", status);
+        return get("?state={state}&from={from}&size={size}", userId.longValue(), parameter);
+    }
+
+    public ResponseEntity<Object> findAllBookingsOwner(Long userId, String status, int from, int size) {
+        Map<String, Object> parameter = new HashMap<>();
+        parameter.put("from", from);
+        parameter.put("size", size);
+        parameter.put("state", status);
+        return get("/owner?state={state}&from={from}&size={size}", userId.longValue(), parameter);
+    }
+
+/*    public ResponseEntity<Object> getBookingById(Long userId, Long bookingId) {
+        return get("/" + bookingId, userId);
+    }*/
+
+/*    public ResponseEntity<Object> findAllBookingsUser(Long userId, String status, int from, int size) {
         Map<String, Object> parameter = new HashMap<>();
         parameter.put("from", from);
         parameter.put("size", size);
@@ -48,6 +70,6 @@ public class BookingClient extends BaseClient {
         parameter.put("size", size);
         parameter.put("state", status);
         return get("/owner?state={state}&from={from}&size={size}", userId, parameter);
-    }
+    }*/
 
 }
