@@ -1,5 +1,6 @@
 package ru.practicum.shareit.item;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -14,6 +15,7 @@ import ru.practicum.shareit.item.dto.ItemDto;
 import java.util.Map;
 
 @Service
+@Slf4j
 public class ItemClient extends BaseClient {
     private static final String API_PREFIX = "/items";
 
@@ -23,18 +25,22 @@ public class ItemClient extends BaseClient {
     }
 
     public ResponseEntity<Object> findAllItemsUser(Long userId) {
+        log.info("Запрос на получение всех предметов");
         return get("", userId);
     }
 
     public ResponseEntity<Object> createItem(Long userId, ItemDto itemDto) {
+        log.info("Запрос на создание предмета");
         return post("", userId, itemDto);
     }
 
     public ResponseEntity<Object> updateItem(Long userId, Long id, ItemDto itemDto) {
+        log.info("Запрос на обновление предмета");
         return patch("/" + id, userId, itemDto);
     }
 
     public ResponseEntity<Object> getItemById(Long userId, Long id) {
+        log.info("Запрос на получение предмета по Id");
         return get("/" + id, userId);
     }
 
@@ -42,10 +48,12 @@ public class ItemClient extends BaseClient {
         Map<String, Object> parameters = Map.of(
                 "text", text
         );
+        log.info("Запрос на поиск");
         return get("/search?text={text}", userId, parameters);
     }
 
     public ResponseEntity<Object> createComment(Long authorId, Long itemId, CommentDto commentDto) {
+        log.info("Запрос на добавление комментария");
         return post("/" + itemId + "/comment", authorId, commentDto);
     }
 }

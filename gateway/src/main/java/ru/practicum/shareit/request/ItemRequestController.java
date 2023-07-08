@@ -22,18 +22,21 @@ public class ItemRequestController {
 
     @GetMapping
     public ResponseEntity<Object> findRequests(@RequestHeader(value = Variables.USER_ID) Long userId) {
+        log.info("Запрос к клиенту на получение запросов пользователя");
         return itemRequestClient.findRequests(userId);
     }
 
     @PostMapping
     public ResponseEntity<Object> createItem(@RequestHeader(value = Variables.USER_ID) Long userId,
                                              @RequestBody @Valid ItemRequestDto itemRequestDto) {
+        log.info("Запрос к клиенту на создание запроса");
         return itemRequestClient.createItem(userId, itemRequestDto);
     }
 
     @GetMapping("/{requestId}")
     public ResponseEntity<Object> getRequestById(@RequestHeader(value = Variables.USER_ID) Long userId,
                                                  @PathVariable(value = "requestId") Long requestId) {
+        log.info("Запрос к клиенту на получение запроса");
         return itemRequestClient.getItemById(userId, requestId);
     }
 
@@ -41,6 +44,7 @@ public class ItemRequestController {
     public ResponseEntity<Object> findAllRequests(@RequestHeader(value = Variables.USER_ID) Long userId,
                                                   @RequestParam(value = "from", defaultValue = "0") int from,
                                                   @RequestParam(value = "size", defaultValue = "10") int size) {
+        log.info("Запрос к клиенту на получение всех запросов");
         return itemRequestClient.findAllRequests(userId, from, size);
     }
 }

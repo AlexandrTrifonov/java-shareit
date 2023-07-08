@@ -1,5 +1,6 @@
 package ru.practicum.shareit.request;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -13,6 +14,7 @@ import ru.practicum.shareit.request.dto.ItemRequestDto;
 import java.util.Map;
 
 @Service
+@Slf4j
 public class ItemRequestClient extends BaseClient {
     private static final String API_PREFIX = "/requests";
 
@@ -22,14 +24,17 @@ public class ItemRequestClient extends BaseClient {
     }
 
     public ResponseEntity<Object> findRequests(Long userId) {
+        log.info("Запрос на получение запросов пользователя");
         return get("", userId);
     }
 
     public ResponseEntity<Object> createItem(Long userId, ItemRequestDto itemRequestDto) {
+        log.info("Запрос на создание запроса");
         return post("", userId, itemRequestDto);
     }
 
     public ResponseEntity<Object> getItemById(Long userId, Long requestId) {
+        log.info("Запрос на получение запроса");
         return get("/" + requestId, userId);
     }
 
@@ -37,6 +42,7 @@ public class ItemRequestClient extends BaseClient {
         Map<String, Object> parameters = Map.of(
                 "from", from,
                 "size", size);
+        log.info("Запрос на получение всех запросов");
         return get("/all?from={from}&size={size}", userId, parameters);
     }
 }

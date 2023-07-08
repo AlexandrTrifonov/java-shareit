@@ -22,12 +22,14 @@ public class ItemController {
 
     @GetMapping
     public ResponseEntity<Object> findAllItemsUser(@RequestHeader(value = Variables.USER_ID) Long userId) {
+        log.info("Запрос к клиенту на получение всех предметов");
         return itemClient.findAllItemsUser(userId);
     }
 
     @PostMapping
     public ResponseEntity<Object> createItem(@RequestHeader(value = Variables.USER_ID) Long userId,
                                              @RequestBody @Valid ItemDto itemDto) {
+        log.info("Запрос к клиенту на создание предмета");
         return itemClient.createItem(userId, itemDto);
     }
 
@@ -35,18 +37,21 @@ public class ItemController {
     public ResponseEntity<Object> updateItem(@RequestHeader(value = Variables.USER_ID) Long userId,
                                              @PathVariable(value = "itemId") Long id,
                                              @RequestBody ItemDto itemDto) {
+        log.info("Запрос к клиенту на обновление предмета");
         return itemClient.updateItem(userId, id, itemDto);
     }
 
     @GetMapping("/{itemId}")
     public ResponseEntity<Object> getItemById(@RequestHeader(value = Variables.USER_ID) Long userId,
                                               @PathVariable(value = "itemId") Long id) {
+        log.info("Запрос к клиенту на получение предмета по Id");
         return itemClient.getItemById(userId, id);
     }
 
     @GetMapping("/search")
     public ResponseEntity<Object> search(@RequestHeader(value = Variables.USER_ID) Long userId,
                                          @RequestParam("text") String text) {
+        log.info("Запрос к клиенту на поиск");
         return itemClient.search(userId, text);
     }
 
@@ -54,6 +59,7 @@ public class ItemController {
     public ResponseEntity<Object> createComment(@RequestHeader(value = Variables.USER_ID) Long authorId,
                                                 @PathVariable Long itemId,
                                                 @RequestBody @Valid CommentDto commentDto) {
+        log.info("Запрос к клиенту на добавление комментария");
         return itemClient.createComment(authorId, itemId, commentDto);
     }
 }
