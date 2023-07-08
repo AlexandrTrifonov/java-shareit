@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingDto;
+import ru.practicum.shareit.utils.Variables;
 
 import java.util.List;
 
@@ -19,31 +20,29 @@ public class BookingController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public BookingDto createBooking(@RequestHeader("X-Sharer-User-Id") Long bookerId,
+    public BookingDto createBooking(@RequestHeader(value = Variables.USER_ID) Long bookerId,
                                     @RequestBody BookingDto bookingDto) {
         return bookingService.createBooking(bookerId, bookingDto);
     }
 
     @PatchMapping("/{bookingId}")
     @ResponseStatus(HttpStatus.OK)
-    public BookingDto approveBooking(@RequestHeader("X-Sharer-User-Id") Long userId,
+    public BookingDto approveBooking(@RequestHeader(value = Variables.USER_ID) Long userId,
                                      @PathVariable(value = "bookingId") Long id,
                                      @RequestParam("approved") Boolean approved) {
-        System.out.println("333333333333");
-        System.out.println(userId);
         return bookingService.approveBooking(userId, id, approved);
     }
 
     @GetMapping("/{bookingId}")
     @ResponseStatus(HttpStatus.OK)
-    public BookingDto getBookingById(@RequestHeader("X-Sharer-User-Id") Long userId,
+    public BookingDto getBookingById(@RequestHeader(value = Variables.USER_ID) Long userId,
                                      @PathVariable(value = "bookingId") Long id) {
         return bookingService.getBookingById(userId, id);
     }
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public List<BookingDto> findAllBookingsUser(@RequestHeader("X-Sharer-User-Id") Long userId,
+    public List<BookingDto> findAllBookingsUser(@RequestHeader(value = Variables.USER_ID) Long userId,
                                                 @RequestParam(required = false, defaultValue = "ALL") String state,
                                                 @RequestParam(value = "from", defaultValue = "0") int from,
                                                 @RequestParam(value = "size", defaultValue = "10") int size) {
@@ -52,7 +51,7 @@ public class BookingController {
 
     @GetMapping("/owner")
     @ResponseStatus(HttpStatus.OK)
-    public List<BookingDto> findAllBookingsOwner(@RequestHeader("X-Sharer-User-Id") Long userId,
+    public List<BookingDto> findAllBookingsOwner(@RequestHeader(value = Variables.USER_ID) Long userId,
                                                  @RequestParam(required = false, defaultValue = "ALL") String state,
                                                  @RequestParam(value = "from", defaultValue = "0") int from,
                                                  @RequestParam(value = "size", defaultValue = "10") int size) {

@@ -1,5 +1,6 @@
 package ru.practicum.shareit.booking;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -14,6 +15,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Service
+@Slf4j
 public class BookingClient extends BaseClient {
     private static final String API_PREFIX = "/bookings";
 
@@ -23,16 +25,17 @@ public class BookingClient extends BaseClient {
     }
 
     public ResponseEntity<Object> createBooking(Long bookerId, BookingDto bookingDto) {
+        log.info("Запрос на создание брони");
         return post("", bookerId, bookingDto);
     }
 
     public ResponseEntity<Object> approveBooking(Long userId, Long bookingId, Boolean approved) {
-        System.out.println("222222222222222222");
-        System.out.println(userId);
+        log.info("Запрос на одобрение брони");
         return patch("/" + bookingId + "?approved=" + approved, userId.longValue());
     }
 
     public ResponseEntity<Object> getBookingById(Long userId, Long bookingId) {
+        log.info("Запрос на получение брони");
         return get("/" + bookingId, userId.longValue());
     }
 
@@ -41,6 +44,7 @@ public class BookingClient extends BaseClient {
         parameter.put("from", from);
         parameter.put("size", size);
         parameter.put("state", status);
+        log.info("Запрос на получение всей брони");
         return get("?state={state}&from={from}&size={size}", userId.longValue(), parameter);
     }
 
@@ -49,27 +53,8 @@ public class BookingClient extends BaseClient {
         parameter.put("from", from);
         parameter.put("size", size);
         parameter.put("state", status);
+        log.info("Запрос на получение всей брони");
         return get("/owner?state={state}&from={from}&size={size}", userId.longValue(), parameter);
     }
-
-/*    public ResponseEntity<Object> getBookingById(Long userId, Long bookingId) {
-        return get("/" + bookingId, userId);
-    }*/
-
-/*    public ResponseEntity<Object> findAllBookingsUser(Long userId, String status, int from, int size) {
-        Map<String, Object> parameter = new HashMap<>();
-        parameter.put("from", from);
-        parameter.put("size", size);
-        parameter.put("state", status);
-        return get("?state={state}&from={from}&size={size}", userId, parameter);
-    }
-
-    public ResponseEntity<Object> findAllBookingsOwner(Long userId, String status, int from, int size) {
-        Map<String, Object> parameter = new HashMap<>();
-        parameter.put("from", from);
-        parameter.put("size", size);
-        parameter.put("state", status);
-        return get("/owner?state={state}&from={from}&size={size}", userId, parameter);
-    }*/
 
 }
